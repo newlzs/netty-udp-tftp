@@ -11,5 +11,11 @@
 
     <artifactId>client</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.lizishi</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

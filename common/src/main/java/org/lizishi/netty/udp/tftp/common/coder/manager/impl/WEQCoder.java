@@ -1,4 +1,4 @@
-package org.lizishi.netty.udp.tftp.common.coder.manager;
+package org.lizishi.netty.udp.tftp.common.coder.manager.impl;
 
 /**
  * @author Lzs
