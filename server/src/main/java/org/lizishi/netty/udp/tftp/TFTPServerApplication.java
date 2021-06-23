@@ -10,7 +10,9 @@ import org.lizishi.netty.udp.tftp.service.TFTPservice;
 public class TFTPServerApplication {
 
     public static void main(String[] args) {
+        TFTPservice.rootPath = "G:/桌面/";
         TFTPservice service = new TFTPservice();
+
         service.run();
     }
 }

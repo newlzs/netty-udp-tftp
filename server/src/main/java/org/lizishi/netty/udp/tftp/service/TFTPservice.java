@@ -4,12 +4,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.lizishi.netty.udp.tftp.common.coder.Decoder;
-import org.lizishi.netty.udp.tftp.common.coder.Encoder;
 import org.lizishi.netty.udp.tftp.handler.ServerHandler;
 
 /**
@@ -19,33 +15,26 @@ import org.lizishi.netty.udp.tftp.handler.ServerHandler;
  */
 @Slf4j
 public class TFTPservice {
+
+    public static String rootPath;
+
     int port = 69;
 
     public void run() {
         log.info("StartService.run-> tftp server start ....");
-        EventLoopGroup workGroup = new NioEventLoopGroup();
-
+        Bootstrap b = BootstrapSingleFactory.getInstance();
         try{
-            Bootstrap b = new Bootstrap();
-
-            b.group(workGroup)
-                    .channel(NioDatagramChannel.class)
-                    .handler(new ChannelInitializer<NioDatagramChannel>() {
-                        @Override
-                        protected void initChannel(NioDatagramChannel channel) throws Exception {
-                            ChannelPipeline pipeline = channel.pipeline();
-                            pipeline.addLast(new Decoder())
-                                    .addLast(new ServerHandler())
-                                    .addLast(new Encoder());
-                        }
-                    });
-
+            b.handler(new ChannelInitializer<NioDatagramChannel>() {
+                @Override
+                protected void initChannel(NioDatagramChannel channel) throws Exception {
+                    ChannelPipeline pipeline = channel.pipeline();
+                    pipeline.addLast(new ServerHandler());
+                }
+            });
             ChannelFuture future = b.bind(port).sync();
             log.info("StartService.run-> tftp server start success.......");
 
-            future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            workGroup.shutdownGracefully();
             log.error("StartService.run-> ", e);
         }
     }

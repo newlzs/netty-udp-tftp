@@ -1,7 +1,7 @@
 package org.lizishi.netty.udp.tftp.packet.entry;
 
-import io.netty.buffer.ByteBuf;
 import lombok.Data;
+import org.lizishi.netty.udp.tftp.enums.PacketType;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
 
 /**
@@ -16,4 +16,13 @@ public class DataPacket extends BasePacket {
 
     // 数据
     byte[] data;
+
+    public DataPacket() {
+    }
+
+    public DataPacket(int blockNum, byte[] data) {
+        super(PacketType.DATA);
+        this.blockNum = blockNum;
+        this.data = data;
+    }
 }

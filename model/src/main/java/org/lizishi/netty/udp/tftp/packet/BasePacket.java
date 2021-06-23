@@ -1,6 +1,7 @@
 package org.lizishi.netty.udp.tftp.packet;
 
 import lombok.Data;
+import org.lizishi.netty.udp.tftp.enums.PacketType;
 
 import java.net.InetSocketAddress;
 
@@ -14,5 +15,11 @@ public abstract class BasePacket {
     // 发自
     InetSocketAddress remoteAddress;
     // 类型
-    int Opcode;
+    PacketType packetType;
+
+    public BasePacket(){}
+
+    public BasePacket(PacketType packetType) {
+        this.packetType = packetType;
+    }
 }

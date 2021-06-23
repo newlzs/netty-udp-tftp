@@ -1,7 +1,7 @@
 package org.lizishi.netty.udp.tftp.common.coder;
 
 import org.lizishi.netty.udp.tftp.common.coder.manager.Coder;
-import org.lizishi.netty.udp.tftp.common.coder.manager.impl.ACKCoder;
+import org.lizishi.netty.udp.tftp.common.coder.manager.impl.*;
 import org.lizishi.netty.udp.tftp.enums.PacketType;
 
 
@@ -12,12 +12,20 @@ import org.lizishi.netty.udp.tftp.enums.PacketType;
  */
 public class CoderHandler {
     
-    public static Coder getCoder(int packetTypeCode) {
-        if(packetTypeCode == PacketType.ACK.getCode()) {
-            return ACKCoder.getCoder();
+    public static Coder getCoder(PacketType packetType) {
+        switch (packetType) {
+            case RRQ:
+                return RRQCoder.getCoder();
+            case WRQ:
+                return WRQCoder.getCoder();
+            case DATA:
+                return DataCoder.getCoder();
+            case ACK:
+                return ACKCoder.getCoder();
+            case ERROR:
+                return ErrorCoder.getCoder();
+            default:
+                return null;
         }
-        //todo 2021/6/21 补充剩余策略
-        
-        throw new RuntimeException("包类型异常");
     }
 }

@@ -5,5 +5,5 @@ package org.lizishi.netty.udp.tftp.packet.entry;
  * @date 2021/6/21 12:35
  * @description
  */
-public class WEQPacket extends REQPacket {
+public class WRQPacket extends RRQPacket {
 }

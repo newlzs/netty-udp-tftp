@@ -1,6 +1,7 @@
 package org.lizishi.netty.udp.tftp.packet.entry;
 
 import lombok.Data;
+import org.lizishi.netty.udp.tftp.enums.PacketType;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
 
 /**
@@ -12,4 +13,12 @@ import org.lizishi.netty.udp.tftp.packet.BasePacket;
 public class ACKPacket extends BasePacket {
     // 确认块号
     int blockNum;
+
+    public ACKPacket(int blockNum) {
+        super(PacketType.ACK);
+        this.blockNum = blockNum;
+    }
+
+    public ACKPacket() {
+    }
 }

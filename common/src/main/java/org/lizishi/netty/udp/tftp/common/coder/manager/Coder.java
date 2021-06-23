@@ -1,8 +1,7 @@
 package org.lizishi.netty.udp.tftp.common.coder.manager;
 
+import io.netty.buffer.ByteBuf;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
-
-import java.io.IOException;
 
 /**
  * @author Lzs
@@ -11,15 +10,7 @@ import java.io.IOException;
  */
 public interface Coder<T extends BasePacket> {
     // 编码
-    byte[] encoder(T packet) throws IOException;
+    ByteBuf encoder(T packet);
     // 解码
-    T decoder(byte[] bytes);
-
-    public static byte[] getOpCode(int opCode) {
-        byte[] result = new byte[2];
-        result[0] = (byte) (opCode & 0xFF);
-        result[1] = (byte) ((opCode >> 8) & 0xFF);
-
-        return result;
-    }
+    T decoder(ByteBuf buf);
 }
