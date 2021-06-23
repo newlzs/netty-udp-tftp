@@ -12,10 +12,10 @@ import org.lizishi.netty.udp.tftp.packet.BasePacket;
 @Data
 public class DataPacket extends BasePacket {
     // 数据块号
-    int blockNum;
+    private int blockNum;
 
     // 数据
-    byte[] data;
+    private byte[] data;
 
     public DataPacket() {
     }

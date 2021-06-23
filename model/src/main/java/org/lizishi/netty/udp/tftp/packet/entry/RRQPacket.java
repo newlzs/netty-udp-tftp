@@ -13,14 +13,14 @@ import org.lizishi.netty.udp.tftp.packet.BasePacket;
 @Data
 public class RRQPacket extends BasePacket {
     // 文件名
-    String fileName;
+    private String fileName;
 
     // 模式
-    ModelType model;
+    private ModelType model;
 
     public RRQPacket(){}
 
-    public RRQPacket(String fileName, ModelType model) {
+    public RRQPacket( String fileName, ModelType model) {
         super(PacketType.RRQ);
         this.fileName = fileName;
         this.model = model;

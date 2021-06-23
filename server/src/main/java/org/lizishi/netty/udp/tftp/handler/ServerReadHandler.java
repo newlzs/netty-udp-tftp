@@ -46,7 +46,7 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
     private boolean readFinished = false;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
+    protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
         ByteBuf buf = datagramPacket.content();
         BasePacket packet = PacketUtils.create(buf);
         packet.setRemoteAddress(datagramPacket.sender());
@@ -151,7 +151,8 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
         }
         // 如果应答不正常，就重传上一个包。
         else {
-            log.warn("ServerReadHandler.handleAckPacket-> ack包不正常，重传上一个data包");
+            log.warn("ServerReadHandler.handleAckPacket-> ack包不正常" +
+                    "，重传上一个data包");
             DataPacket dataPacket = new DataPacket(blockNumber, blockBuffer);
             DatagramPacket datagramPacket = DatagramUtils.buildDatagramPacket(dataPacket, ackPacket.getRemoteAddress());
             log.info("ServerReadHandler.handleAckPacket-> fileName:{}, data:{}",fileName, dataPacket);

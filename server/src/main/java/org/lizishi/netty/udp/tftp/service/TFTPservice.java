@@ -1,10 +1,7 @@
 package org.lizishi.netty.udp.tftp.service;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.nio.NioDatagramChannel;
+import cn.hutool.core.util.ObjectUtil;
+import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.lizishi.netty.udp.tftp.handler.ServerHandler;
 
@@ -20,22 +17,16 @@ public class TFTPservice {
 
     int port = 69;
 
-    public void run() {
-        log.info("StartService.run-> tftp server start ....");
-        Bootstrap b = BootstrapSingleFactory.getInstance();
-        try{
-            b.handler(new ChannelInitializer<NioDatagramChannel>() {
-                @Override
-                protected void initChannel(NioDatagramChannel channel) throws Exception {
-                    ChannelPipeline pipeline = channel.pipeline();
-                    pipeline.addLast(new ServerHandler());
-                }
-            });
-            ChannelFuture future = b.bind(port).sync();
-            log.info("StartService.run-> tftp server start success.......");
-
+    public void run()  {
+        try {
+            log.info("StartService.run-> tftp server start ....");
+            Channel channel = ChannelFactory.getNewChannel(new ServerHandler(), port);
+            if(ObjectUtil.isNotNull(channel)) {
+                log.info("StartService.run-> tftp server start success.......");
+            }
+            channel.closeFuture().sync();
         } catch (InterruptedException e) {
-            log.error("StartService.run-> ", e);
+            e.printStackTrace();
         }
     }
 }

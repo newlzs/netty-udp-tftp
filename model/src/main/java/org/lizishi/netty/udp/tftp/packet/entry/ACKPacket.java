@@ -12,7 +12,7 @@ import org.lizishi.netty.udp.tftp.packet.BasePacket;
 @Data
 public class ACKPacket extends BasePacket {
     // 确认块号
-    int blockNum;
+    private int blockNum;
 
     public ACKPacket(int blockNum) {
         super(PacketType.ACK);

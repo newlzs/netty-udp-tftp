@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lizishi.netty.udp.tftp.common.utils.PacketUtils;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
 import org.lizishi.netty.udp.tftp.service.opService.ReadService;
+import org.lizishi.netty.udp.tftp.service.opService.WriteService;
 
 /**
  * @author Lzs
@@ -18,7 +19,7 @@ import org.lizishi.netty.udp.tftp.service.opService.ReadService;
 public class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
+    protected void messageReceived (ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         log.info("ServerHandler.channelRead0-> sender:{}", datagramPacket.sender());
         ByteBuf buf = datagramPacket.content();
         BasePacket basePacket = PacketUtils.create(buf);
@@ -27,9 +28,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
             case RRQ: // 单独的读通道
                 ReadService.create(basePacket);
                 break;
-//            case WRQ: // 单独的写通道
-//                createWriteChannel(basePacket);
-//                break;
+            case WRQ: // 单独的写通道
+                WriteService.create(basePacket);
+                break;
             default:
                 break;
         }

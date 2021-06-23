@@ -12,11 +12,19 @@ import java.net.InetSocketAddress;
 public class TFTPClientApplication {
     public static void main(String[] args) {
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 69);
+        ClientService.rootPath = "G:/桌面/file/";
 
         ClientService clientService = new ClientService(remoteAddress);
 
         clientService.startClient();
 
-        clientService.readFile("a.txt");
+        try {
+            //        clientService.readFile("a.txt");
+            clientService.writeFile("a.txt");
+
+            clientService.channel.closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

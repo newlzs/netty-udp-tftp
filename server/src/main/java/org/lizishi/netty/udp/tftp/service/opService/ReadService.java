@@ -1,16 +1,11 @@
 package org.lizishi.netty.udp.tftp.service.opService;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.lizishi.netty.udp.tftp.common.utils.ChannelUtils;
 import org.lizishi.netty.udp.tftp.handler.ServerReadHandler;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
 import org.lizishi.netty.udp.tftp.packet.entry.RRQPacket;
-import org.lizishi.netty.udp.tftp.service.BootstrapSingleFactory;
+import org.lizishi.netty.udp.tftp.service.ChannelFactory;
 
 /**
  * @author Lzs
@@ -22,21 +17,10 @@ public class ReadService {
 
     public static void create(BasePacket basePacket) {
         RRQPacket rrqPacket = (RRQPacket) basePacket;
-        log.info("ReadService.create-> basePacket: {}", basePacket);
+        log.info("ReadService.create-> rrqPacket: {}", rrqPacket);
         ServerReadHandler serverReadHandler = new ServerReadHandler();
         try{
-            Bootstrap b = BootstrapSingleFactory.getInstance();
-            b.handler(new ChannelInitializer<NioDatagramChannel>() {
-                        @Override
-                        protected void initChannel(NioDatagramChannel channel) throws Exception {
-                            ChannelPipeline pipeline = channel.pipeline();
-                            pipeline.addLast(serverReadHandler);
-                        }
-                    });
-            int port = ChannelUtils.getUsefulPortAndBind(b);
-            Channel channel = ChannelUtils.channelMap.get(port);
-            log.info("ReadChannel.create-> RRQPacket:{}, port:{} , start.....", rrqPacket, port);        ;
-
+            Channel channel = ChannelFactory.getNewChannel(serverReadHandler);
             serverReadHandler.handleReadRequestPacket(channel, rrqPacket);
         }catch (Exception e) {
             log.error("ReadService.create-> ", e);

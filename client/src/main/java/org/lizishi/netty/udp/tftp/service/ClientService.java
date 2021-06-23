@@ -13,10 +13,12 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.lizishi.netty.udp.tftp.common.coder.manager.Coder;
 import org.lizishi.netty.udp.tftp.common.coder.manager.impl.RRQCoder;
+import org.lizishi.netty.udp.tftp.common.coder.manager.impl.WRQCoder;
 import org.lizishi.netty.udp.tftp.common.utils.FileUtils;
 import org.lizishi.netty.udp.tftp.enums.ModelType;
 import org.lizishi.netty.udp.tftp.handler.ClientHandler;
 import org.lizishi.netty.udp.tftp.packet.entry.RRQPacket;
+import org.lizishi.netty.udp.tftp.packet.entry.WRQPacket;
 
 import java.net.InetSocketAddress;
 
@@ -27,9 +29,12 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class ClientService {
+    public static String rootPath = "./";
+
     public String fileName;
 
-    private NioDatagramChannel channel;
+    public NioDatagramChannel channel;
+
     private InetSocketAddress remoteAddress;
 
     public ClientService(InetSocketAddress inetSocketAddress) {
@@ -37,7 +42,7 @@ public class ClientService {
     }
 
     public void readFile(String path) {
-        if(ObjectUtil.isNotNull(fileName)) {
+        if(ObjectUtil.isNotNull(this.fileName)) {
             log.info("ClientService.readFile-> file is in use, fileName:{}", fileName);
             return ;
         }
@@ -53,8 +58,21 @@ public class ClientService {
         this.fileName = FileUtils.getFileName(path);
     }
 
-    public void writeFile(String path) {
-        return ;
+    public void writeFile(String fileName) {
+        if(ObjectUtil.isNotNull(this.fileName)) {
+            log.info("ClientService.readFile-> file is in use, fileName:{}", fileName);
+            return ;
+        }
+        WRQPacket wrqPacket = new WRQPacket(fileName, ModelType.octet);
+
+        Coder<WRQPacket> coder = WRQCoder.getCoder();
+        ByteBuf buf = coder.encoder(wrqPacket);
+
+        DatagramPacket datagramPacket = new DatagramPacket(buf, remoteAddress);
+
+        channel.writeAndFlush(datagramPacket);
+
+        this.fileName = FileUtils.getFileName(fileName);
     }
 
     public void startClient() {
@@ -76,7 +94,6 @@ public class ClientService {
             ChannelFuture future = b.bind(0).sync();
             channel = (NioDatagramChannel) future.channel();
             log.info("StartService.run-> tftp client start success.......");
-
         } catch (InterruptedException e) {
             workGroup.shutdownGracefully();
             log.error("ClientService.run-> ", e);

@@ -11,7 +11,7 @@ import org.lizishi.netty.udp.tftp.packet.BasePacket;
 @Data
 public class ErrorPacket extends BasePacket {
     // 错误代码
-    int errorCode;
+    private int errorCode;
     // 错误信息
-    String errorMsg;
+    private String errorMsg;
 }

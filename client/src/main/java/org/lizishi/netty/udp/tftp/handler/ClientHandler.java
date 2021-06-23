@@ -23,7 +23,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
+    protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
         ByteBuf buf = datagramPacket.content();
         BasePacket basePacket = PacketUtils.create(buf);
         basePacket.setRemoteAddress(datagramPacket.sender());
@@ -36,6 +36,11 @@ public class ClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
                 ctx.pipeline().remove(this);
                 ctx.fireChannelRead(datagramPacket);
                 break;
+            case ACK:
+                log.info("ClientHandler.channelRead0-> writeFile start.....");
+                ctx.pipeline().addLast(new ClientWriteHandler(this.clientService));
+                ctx.pipeline().remove(this);
+                ctx.fireChannelRead(datagramPacket);
             default:
                 break;
         }
