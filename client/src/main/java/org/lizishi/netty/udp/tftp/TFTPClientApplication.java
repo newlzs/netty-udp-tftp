@@ -19,9 +19,8 @@ public class TFTPClientApplication {
         clientService.startClient();
 
         try {
-            //        clientService.readFile("a.txt");
-            clientService.writeFile("a.txt");
-
+            clientService.readFile("a.txt");
+//            clientService.writeFile("a.txt");
             clientService.channel.closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
