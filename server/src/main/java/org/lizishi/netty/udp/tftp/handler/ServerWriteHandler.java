@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import lombok.extern.slf4j.Slf4j;
+import org.lizishi.netty.udp.tftp.common.utils.ChannelUtils;
 import org.lizishi.netty.udp.tftp.common.utils.DatagramUtils;
 import org.lizishi.netty.udp.tftp.common.utils.PacketUtils;
 import org.lizishi.netty.udp.tftp.constant.PacketConstant;
@@ -82,24 +83,25 @@ public class ServerWriteHandler extends SimpleChannelInboundHandler<DatagramPack
                 // 读取包数据，写入文件
                 byte[] bytes = dataPacket.getData();
                 raf.write(bytes);
+                // 返回确认包
+                ACKPacket ackPacket = new ACKPacket(dataPacket.getBlockNum());
+                DatagramPacket datagramPacket = DatagramUtils.buildDatagramPacket(ackPacket, dataPacket.getRemoteAddress());
+                log.info("ServerWriteHandler.handleDataPacket-> 发送Ack报文：{}", ackPacket);
+                ctx.writeAndFlush(datagramPacket);
+
+                // 块号加1
+                blockNumber++;
+                // 传输完成， 关闭
                 if (bytes.length < PacketConstant.blockSize) {
                     raf.close();
                     log.info("ServerWriteHandler.handleDataPacket-> fileName:{}, 写入完毕", fileName);
-                    // 重置原始handler
-                    //todo 2021/6/22
+                    ChannelUtils.removeByChannel(ctx.channel());
+                    ctx.channel().close();
                 }
             } catch (Exception exp) {
                 log.error("ServerWriteHandler.handleDataPacket-> fileName:{}, 写入出错", fileName, exp);
                 //todo 2021/6/23 发送错误信息
-                return;
             }
-            ACKPacket ackPacket = new ACKPacket(dataPacket.getBlockNum());
-            ByteBuf buf = PacketUtils.toByteBuf(ackPacket);
-            io.netty.channel.socket.DatagramPacket datagramPacket = new io.netty.channel.socket.DatagramPacket(buf, dataPacket.getRemoteAddress());
-            log.info("ServerWriteHandler.handleDataPacket-> 发送Ack报文：{}", ackPacket);
-            ctx.writeAndFlush(datagramPacket);
-            // 块号加1
-            blockNumber++;
         }
     }
 

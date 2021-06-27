@@ -78,7 +78,7 @@ public class ClientWriteHandler extends SimpleChannelInboundHandler<DatagramPack
             // 若读取完毕，则
             if (readFinished) {
                 log.info("ServerReadHandler.handleAckPacket-> fileName:{}, 读取完毕.", clientService.fileName);
-                //todo 2021/6/23 重置
+                this.clientService.reset();
                 return;
             }
 

@@ -71,8 +71,7 @@ public class ClientReadHandler extends SimpleChannelInboundHandler<DatagramPacke
                 if (bytes.length < PacketConstant.blockSize) {
                     raf.close();
                     log.info("写入完毕");
-                    // 重置原始handler
-                    //todo 2021/6/22
+                    this.clientService.reset();
                 }
             } catch (Exception exp) {
                 log.error("写入文件失败", exp);

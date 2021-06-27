@@ -6,7 +6,7 @@ import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +19,21 @@ import java.util.Map;
 public class ChannelUtils {
     public static Map<Integer, Channel> channelMap = new HashMap<>();
 
+    public static boolean removeByChannel(Channel channel) {
+        int port = -1;
+        for (Map.Entry<Integer, Channel> entry : channelMap.entrySet()) {
+            if (entry.getValue() == channel) {
+                port = entry.getKey();
+                break;
+            }
+        }
+        if(port != -1) {
+            ChannelUtils.channelMap.remove(port);
+            return true;
+        }
+        return false;
+    }
+
     public static void bindPort(Bootstrap b, int port) {
         try{
             Channel channel = b.bind(port).sync().channel();
@@ -29,10 +44,12 @@ public class ChannelUtils {
     }
 
     public synchronized static int getUsefulPortAndBind(Bootstrap b) {
-        ServerSocket serverSocket = null; //读取空闲的可用端口
+        DatagramSocket socket = null; //读取空闲的可用端口
         try {
-            serverSocket = new ServerSocket(0);
-            int port = serverSocket.getLocalPort();
+            socket = new DatagramSocket(0);
+            int port = socket.getLocalPort();
+            socket.close();
+            log.info("ChannelUtils.getUsefulPortAndBind-> getTestPosrt:{}", port);
             Channel channel = b.bind(port).sync().channel();
             channelMap.put(port, channel);
             return port;

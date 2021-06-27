@@ -41,6 +41,15 @@ public class ClientService {
         this.remoteAddress = inetSocketAddress;
     }
 
+    /**
+     * 传输完成，或者出现异常，重置
+     */
+    public void reset() {
+        this.fileName = null;
+        this.channel.pipeline().removeLast();
+        this.channel.pipeline().addLast(new ClientHandler(ClientService.this));
+    }
+
     public void readFile(String path) {
         if(ObjectUtil.isNotNull(this.fileName)) {
             log.info("ClientService.readFile-> file is in use, fileName:{}", fileName);

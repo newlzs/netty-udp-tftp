@@ -3,6 +3,7 @@ package org.lizishi.netty.udp.tftp;
 import org.lizishi.netty.udp.tftp.service.ClientService;
 
 import java.net.InetSocketAddress;
+import java.util.Scanner;
 
 /**
  * @author Lzs
@@ -12,15 +13,30 @@ import java.net.InetSocketAddress;
 public class TFTPClientApplication {
     public static void main(String[] args) {
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 69);
-        ClientService.rootPath = "G:/桌面/file/";
+        ClientService.rootPath = "./testFile/clientFile/";
 
         ClientService clientService = new ClientService(remoteAddress);
 
         clientService.startClient();
 
         try {
-            clientService.readFile("a.txt");
-//            clientService.writeFile("a.txt");
+            Scanner input = new Scanner(System.in);
+            String order, fileName;
+            while(true) {
+                System.out.println("请输入操作类型：read/write/exit");
+                order = input.next();
+                if(order.equals("read")) {
+                    System.out.println("请输入文件名：");
+                    fileName = input.next();
+                    clientService.readFile(fileName);
+                }else if(order.equals("write")) {
+                    System.out.println("请输入文件名：");
+                    fileName = input.next();
+                    clientService.writeFile(fileName);
+                }else if(order.equals("exit")) {
+                    break;
+                }
+            }
             clientService.channel.closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
