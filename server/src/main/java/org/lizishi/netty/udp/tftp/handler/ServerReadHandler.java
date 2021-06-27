@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import lombok.extern.slf4j.Slf4j;
+import org.lizishi.netty.udp.tftp.common.utils.ChannelUtils;
 import org.lizishi.netty.udp.tftp.common.utils.DatagramUtils;
 import org.lizishi.netty.udp.tftp.common.utils.PacketUtils;
 import org.lizishi.netty.udp.tftp.enums.ModelType;
@@ -131,9 +132,9 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
             // 若读取完毕，则
             if (readFinished) {
                 log.info("ServerReadHandler.handleAckPacket-> fileName:{}, 读取完毕.", fileName);
-                // 延迟关闭连接
-                //todo 2021/6/23 关闭端口
-                return;
+                // 关闭连接
+                ChannelUtils.removeByChannel(ctx.channel());
+                ctx.channel().close();
             }
             // 块号加1
             blockNumber++;
