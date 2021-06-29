@@ -19,7 +19,7 @@ import java.util.Map;
 public class ChannelUtils {
     public static Map<Integer, Channel> channelMap = new HashMap<>();
 
-    public static boolean removeByChannel(Channel channel) {
+    public static boolean removeAndCloseByChannel(Channel channel) {
         int port = -1;
         for (Map.Entry<Integer, Channel> entry : channelMap.entrySet()) {
             if (entry.getValue() == channel) {
@@ -28,6 +28,7 @@ public class ChannelUtils {
             }
         }
         if(port != -1) {
+            ChannelUtils.channelMap.get(port).close();
             ChannelUtils.channelMap.remove(port);
             return true;
         }

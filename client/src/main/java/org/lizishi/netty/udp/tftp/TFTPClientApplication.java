@@ -1,5 +1,6 @@
 package org.lizishi.netty.udp.tftp;
 
+import cn.hutool.core.util.ObjectUtil;
 import org.lizishi.netty.udp.tftp.service.ClientService;
 
 import java.net.InetSocketAddress;
@@ -23,6 +24,11 @@ public class TFTPClientApplication {
             Scanner input = new Scanner(System.in);
             String order, fileName;
             while(true) {
+                if(ObjectUtil.isNotNull(clientService.fileName)) {
+                    Thread.sleep(100);
+                    continue;
+                }
+
                 System.out.println("请输入操作类型：read/write/exit");
                 order = input.next();
                 if(order.equals("read")) {
@@ -37,7 +43,7 @@ public class TFTPClientApplication {
                     break;
                 }
             }
-            clientService.channel.closeFuture().sync();
+            clientService.channel.close();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

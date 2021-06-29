@@ -1,6 +1,5 @@
 package org.lizishi.netty.udp.tftp.service;
 
-import cn.hutool.core.util.ObjectUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -31,7 +30,7 @@ import java.net.InetSocketAddress;
 public class ClientService {
     public static String rootPath = "./";
 
-    public String fileName;
+    public volatile String fileName;
 
     public NioDatagramChannel channel;
 
@@ -50,11 +49,12 @@ public class ClientService {
         this.channel.pipeline().addLast(new ClientHandler(ClientService.this));
     }
 
+    public void resetSimple() {
+        this.fileName = null;
+    }
+
     public void readFile(String path) {
-        if(ObjectUtil.isNotNull(this.fileName)) {
-            log.info("ClientService.readFile-> file is in use, fileName:{}", fileName);
-            return ;
-        }
+
         RRQPacket reqPacket = new RRQPacket(path, ModelType.octet);
 
         Coder<RRQPacket> coder = RRQCoder.getCoder();
@@ -65,13 +65,11 @@ public class ClientService {
         channel.writeAndFlush(datagramPacket);
 
         this.fileName = FileUtils.getFileName(path);
+
     }
 
     public void writeFile(String fileName) {
-        if(ObjectUtil.isNotNull(this.fileName)) {
-            log.info("ClientService.readFile-> file is in use, fileName:{}", fileName);
-            return ;
-        }
+
         WRQPacket wrqPacket = new WRQPacket(fileName, ModelType.octet);
 
         Coder<WRQPacket> coder = WRQCoder.getCoder();

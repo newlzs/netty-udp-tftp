@@ -7,6 +7,7 @@ import io.netty.channel.socket.DatagramPacket;
 import lombok.extern.slf4j.Slf4j;
 import org.lizishi.netty.udp.tftp.common.utils.PacketUtils;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
+import org.lizishi.netty.udp.tftp.packet.entry.ErrorPacket;
 import org.lizishi.netty.udp.tftp.service.ClientService;
 
 /**
@@ -25,11 +26,11 @@ public class ClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
         ByteBuf buf = datagramPacket.content();
-        BasePacket basePacket = PacketUtils.create(buf);
-        basePacket.setRemoteAddress(datagramPacket.sender());
+        BasePacket packet = PacketUtils.create(buf);
+        packet.setRemoteAddress(datagramPacket.sender());
         // 重置
         buf.readerIndex(0);
-        switch (basePacket.getPacketType()) {
+        switch (packet.getPacketType()) {
             case DATA:
                 log.info("ClientHandler.channelRead0-> readFile start.....");
                 ctx.pipeline().addLast(new ClientReadHandler(this.clientService));
@@ -41,6 +42,10 @@ public class ClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
                 ctx.pipeline().addLast(new ClientWriteHandler(this.clientService));
                 ctx.pipeline().remove(this);
                 ctx.fireChannelRead(datagramPacket);
+                break;
+            case ERROR:
+                log.error("ClientHandler.messageReceived-> error:{}", (ErrorPacket) packet);
+                clientService.resetSimple();
             default:
                 break;
         }

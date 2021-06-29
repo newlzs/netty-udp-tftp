@@ -8,7 +8,9 @@ import io.netty.channel.socket.DatagramPacket;
 import lombok.extern.slf4j.Slf4j;
 import org.lizishi.netty.udp.tftp.common.utils.ChannelUtils;
 import org.lizishi.netty.udp.tftp.common.utils.DatagramUtils;
+import org.lizishi.netty.udp.tftp.common.utils.ErrorUtils;
 import org.lizishi.netty.udp.tftp.common.utils.PacketUtils;
+import org.lizishi.netty.udp.tftp.enums.Error;
 import org.lizishi.netty.udp.tftp.enums.ModelType;
 import org.lizishi.netty.udp.tftp.enums.PacketType;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
@@ -68,6 +70,9 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
         // 读请求预处理
         File file = preHandleReadRequest(ctx, readPacket);
         if (file == null) {
+            ErrorUtils.sendErrorAndCloseChannel(ctx, Error.FILE_NOT_EXIST.getCode(),
+                    String.format(Error.FILE_NOT_EXIST.getMsg(), readPacket.getFileName()),
+                    readPacket.getRemoteAddress());
             return ;
         }
         // 块大小选项
@@ -82,7 +87,7 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
             if (dataPacket != null) {
                log.info("ReadFileHandler.handleReadRequestPacket-> send file:{}, block:{}", fileName, blockNumber);
                 ByteBuf buf = PacketUtils.toByteBuf(dataPacket);
-               DatagramPacket datagramPacket = new DatagramPacket(buf, readPacket.getRemoteAddress());
+                DatagramPacket datagramPacket = new DatagramPacket(buf, readPacket.getRemoteAddress());
 
                ctx.writeAndFlush(datagramPacket);
             }
@@ -105,7 +110,6 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
         log.info("ReadFileHandler.preHandleReadRequest-> model:{}", mode);        
         if (!Objects.equals(mode, ModelType.octet)) {
             log.error("不支持此模式, mode:{}", mode);
-            //todo 2021/6/22 发送错误报文
             return null;
         }
 
@@ -115,7 +119,6 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
             raf = new RandomAccessFile(file, "r");
         } catch (FileNotFoundException exp) {
             log.error("文件不存在", exp);
-            //todo 2021/6/22 发送错误报文
             return null;
         }
         return file;
@@ -133,8 +136,8 @@ public class ServerReadHandler extends SimpleChannelInboundHandler<DatagramPacke
             if (readFinished) {
                 log.info("ServerReadHandler.handleAckPacket-> fileName:{}, 读取完毕.", fileName);
                 // 关闭连接
-                ChannelUtils.removeByChannel(ctx.channel());
-                ctx.channel().close();
+                ChannelUtils.removeAndCloseByChannel(ctx.channel());
+                return;
             }
             // 块号加1
             blockNumber++;

@@ -6,6 +6,7 @@ import org.lizishi.netty.udp.tftp.common.coder.CoderHandler;
 import org.lizishi.netty.udp.tftp.common.coder.manager.Coder;
 import org.lizishi.netty.udp.tftp.enums.PacketType;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
+import org.lizishi.netty.udp.tftp.packet.entry.ErrorPacket;
 
 /**
  * @author Lzs
@@ -31,5 +32,14 @@ public class PacketUtils {
 
     public static byte[] strToAscii(String str) {
         return str.getBytes(CharsetUtil.US_ASCII);
+    }
+
+
+    public static ErrorPacket buildErrorPacket(int errorCode, String message) {
+        ErrorPacket errorPacket = new ErrorPacket();
+        errorPacket.setPacketType(PacketType.ERROR);
+        errorPacket.setErrorCode(errorCode);
+        errorPacket.setErrorMsg(message);
+        return errorPacket;
     }
 }

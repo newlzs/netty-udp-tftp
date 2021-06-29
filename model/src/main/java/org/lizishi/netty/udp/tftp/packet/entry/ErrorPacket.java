@@ -1,6 +1,7 @@
 package org.lizishi.netty.udp.tftp.packet.entry;
 
 import lombok.Data;
+import org.lizishi.netty.udp.tftp.enums.PacketType;
 import org.lizishi.netty.udp.tftp.packet.BasePacket;
 
 /**
@@ -14,4 +15,8 @@ public class ErrorPacket extends BasePacket {
     private int errorCode;
     // 错误信息
     private String errorMsg;
+
+    public ErrorPacket() {
+        super(PacketType.ERROR);
+    }
 }

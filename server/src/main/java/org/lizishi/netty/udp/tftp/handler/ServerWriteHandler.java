@@ -95,8 +95,7 @@ public class ServerWriteHandler extends SimpleChannelInboundHandler<DatagramPack
                 if (bytes.length < PacketConstant.blockSize) {
                     raf.close();
                     log.info("ServerWriteHandler.handleDataPacket-> fileName:{}, 写入完毕", fileName);
-                    ChannelUtils.removeByChannel(ctx.channel());
-                    ctx.channel().close();
+                    ChannelUtils.removeAndCloseByChannel(ctx.channel());
                 }
             } catch (Exception exp) {
                 log.error("ServerWriteHandler.handleDataPacket-> fileName:{}, 写入出错", fileName, exp);
